@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="model"
+            type="android.location.Location" />
+    </data>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="12dp"
+        app:cardCornerRadius="12dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="12dp">
+
+            <TextView
+                android:id="@+id/latitudeView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@{@string/latitude(model.latitude)}"
+                app:layout_constraintBottom_toTopOf="@id/longitudeView"
+                app:layout_constraintEnd_toStartOf="@id/imageView"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="10.1233" />
+
+            <TextView
+                android:id="@+id/longitudeView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@{@string/latitude(model.longitude)}"
+                app:layout_constraintBottom_toTopOf="@id/distanceView"
+                app:layout_constraintEnd_toStartOf="@id/imageView"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/latitudeView"
+                tools:text="12.1233" />
+
+            <TextView
+                android:id="@+id/distanceView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toTopOf="@id/directionView"
+                app:layout_constraintEnd_toStartOf="@id/imageView"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/longitudeView"
+                tools:text="Distance..." />
+
+            <TextView
+                android:id="@+id/directionView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/imageView"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/distanceView"
+                tools:text="Direction..." />
+
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:adjustViewBounds="true"
+                android:src="@drawable/ic_arrow"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/longitudeView"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="@color/purple_700"
+                tools:ignore="ContentDescription" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.cardview.widget.CardView>
+
+</layout>

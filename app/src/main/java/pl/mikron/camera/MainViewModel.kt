@@ -1,33 +1,19 @@
 package pl.mikron.camera
 
-import android.hardware.SensorManager
+import android.content.res.Resources
 import android.location.Location
 import androidx.lifecycle.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.disposables.CompositeDisposable
+import pl.mikron.camera.location.LocationData
 import pl.mikron.camera.location.LocationSensor
-import pl.mikron.camera.sensors.Sensors
 import javax.inject.Inject
-import kotlin.math.*
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-  private val sensors: Sensors,
-  private val location: LocationSensor
+  private val sensor: LocationSensor,
+  private val resources: Resources
 ) : ViewModel() {
-
-  private val locationG = Location("")
-  private val locationS = Location("")
-  private val locationDefault = Location("")
-
-  init {
-    locationG.latitude = 18.619495
-    locationG.longitude = 54.371797
-    locationS.latitude = 18.572433
-    locationS.longitude = 54.446862
-    locationDefault.latitude = 18.574557
-    locationDefault.longitude = 54.408253
-  }
 
   private val disposables = CompositeDisposable()
 
@@ -36,92 +22,63 @@ class MainViewModel @Inject constructor(
     disposables.dispose()
   }
 
-  private val cameraVector = floatArrayOf(0f, 0f, -1f)
-
-  internal fun observeSensors() {
-    disposables
-      .add(
-        sensors
-          .observe()
-          .subscribe(
-            _rotation::postValue,
-          )
-      )
-  }
-
   internal fun observeLocation() {
     disposables
       .add(
-        location
+        sensor
           .observe()
           .subscribe(
-            _userLocation::postValue
+            userLocation::postValue
           )
       )
   }
 
-  private val _userLocation: MutableLiveData<Location> =
-    MutableLiveData(locationDefault)
+  private val userLocation: MutableLiveData<LocationData> =
+    MutableLiveData(LocationData())
 
-  val locationU: LiveData<String> =
-    _userLocation.map { "${it.latitude} ${it.longitude}" }
+  val locationCurrent: LiveData<String> =
+    userLocation.map { "${it.location.latitude} ${it.location.longitude}" }
 
-  private val _rotation: MutableLiveData<FloatArray> =
-    MutableLiveData(FloatArray(9))
+  val locationPrevious: LiveData<String> =
+    userLocation.map { "${it.previousLocation.latitude} ${it.previousLocation.longitude}" }
 
-  private val _orientation: LiveData<FloatArray> =
-    _rotation.map { SensorManager.getOrientation(it, FloatArray(3)) }
+  val velocity: LiveData<String> =
+    userLocation.map { resources.getString(R.string.velocity, it.location.speed) }
 
-  val orientationText: LiveData<String> =
-    _orientation.map { it.joinToString { element -> element.toDegrees().toString() } }
+  val direction: LiveData<String> =
+    userLocation.map { resources.getString(R.string.direction, it.location.bearing) }
 
-  private val _deviceVector: LiveData<FloatArray> =
-    _rotation.map {
-      val vector = FloatArray(3)
-      vector[0] = it[0] * cameraVector[0] + it[1] * cameraVector[1] + it[2] * cameraVector[2]
-      vector[1] = it[3] * cameraVector[0] + it[4] * cameraVector[1] + it[5] * cameraVector[2]
-      vector[2] = it[6] * cameraVector[0] + it[7] * cameraVector[1] + it[8] * cameraVector[2]
-      return@map vector
-    }
+  val longitudeText: MutableLiveData<String> =
+    MutableLiveData(null)
 
-  val deviceVectorText: LiveData<String> =
-    _deviceVector.map { it.joinToString() }
+  val latitudeText: MutableLiveData<String> =
+    MutableLiveData(null)
 
-  val angleG: LiveData<String> =
-    _deviceVector.switchMap { device ->
-      _userLocation.map { location ->
-        val angle = location.bearingTo(locationG)
-        val vector = FloatArray(3)
-        vector[0] = sin(angle)
-        vector[1] = cos(angle)
-        vector[2] = 0F
-        getAngle(vector, device).toDegrees().toString()
+  private val _locations: MutableLiveData<List<Location>> =
+    MutableLiveData(emptyList())
+
+  val locations: LiveData<List<Pair<Location, Location>>> =
+    _locations.switchMap { locations ->
+      userLocation.map { current ->
+        locations.map {
+          Pair(it, current.location)
+        }
       }
     }
 
-  val angleS: LiveData<String> =
-    _deviceVector.switchMap { device ->
-      _userLocation.map { location ->
-        val angle = location.bearingTo(locationS)
-        val vector = FloatArray(3)
-        vector[0] = sin(angle)
-        vector[1] = cos(angle)
-        vector[2] = 0F
-        getAngle(vector, device).toDegrees().toString()
-      }
-    }
+  fun addLocation() {
+    val long = longitudeText.value?.toDouble() ?: return
+    val lat = latitudeText.value?.toDouble() ?: return
 
-  private fun Float.toDegrees(): Int {
-    if (this.isNaN()) return 0
-    return ((this * 180) / PI).roundToInt()
+    _locations.postValue(_locations.value.orEmpty().toMutableList().apply {
+      add(
+        Location("").apply {
+          longitude = long
+          latitude = lat
+        }
+      )
+    })
+    longitudeText.postValue(null)
+    latitudeText.postValue(null)
   }
-
-  private fun dotProduct(a: FloatArray, b: FloatArray) =
-    a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
-
-  private fun vectorMagnitude(vec: FloatArray) =
-    sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2])
-
-  private fun getAngle(a: FloatArray, b: FloatArray) =
-    acos(dotProduct(a, b) / (vectorMagnitude(a) * vectorMagnitude(b)))
 }

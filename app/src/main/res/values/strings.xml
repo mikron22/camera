@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">Camera</string>
+
+    <string name="current_location">Current location: %s</string>
+    <string name="previous_location">Previous location: %s</string>
+    <string name="latitude">Lat: %f</string>
+    <string name="longitude">Lon: %f</string>
+    <string name="direction">Direction: %f</string>
+    <string name="velocity">Velocity: %f m/s</string>
+    <string name="distance">Distance: %f m</string>
+    <string name="add">Add</string>
 </resources>
