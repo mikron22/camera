@@ -12,139 +12,152 @@
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/rootView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/background"
-        android:gravity="center"
-        android:orientation="vertical">
+        android:background="@color/background">
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cardView"
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbarContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="12dp"
-            app:cardCornerRadius="12dp"
-            app:layout_constraintBottom_toTopOf="@id/locationListView"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="12dp">
-
-                <TextView
-                    android:id="@+id/currentView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@{@string/current_location(viewModel.locationCurrent)}"
-                    android:textSize="16sp"
-                    app:layout_constraintBottom_toTopOf="@id/previousView"
-                    app:layout_constraintTop_toTopOf="parent"
-                    tools:text="Current location: 0.0, 0.0" />
-
-                <TextView
-                    android:id="@+id/previousView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:text="@{@string/previous_location(viewModel.locationPrevious)}"
-                    android:textSize="16sp"
-                    app:layout_constraintBottom_toTopOf="@id/velocityView"
-                    app:layout_constraintTop_toBottomOf="@id/currentView"
-                    tools:text="Previous location: 0.0, 0.0" />
-
-                <TextView
-                    android:id="@+id/velocityView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:text="@{viewModel.velocity}"
-                    android:textSize="16sp"
-                    app:layout_constraintBottom_toTopOf="@id/directionView"
-                    app:layout_constraintTop_toBottomOf="@id/previousView"
-                    tools:text="Velocity: 0.0" />
-
-                <TextView
-                    android:id="@+id/directionView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:text="@{viewModel.direction}"
-                    android:textSize="16sp"
-                    app:layout_constraintBottom_toTopOf="@id/locationListView"
-                    app:layout_constraintTop_toBottomOf="@id/velocityView"
-                    tools:text="Direction: 0.0" />
-
-            </LinearLayout>
-
-        </androidx.cardview.widget.CardView>
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/locationListView"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_marginTop="12dp"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            app:layout_constraintBottom_toTopOf="@id/latitudeContainer"
-            app:layout_constraintTop_toBottomOf="@id/cardView"
-            tools:listitem="@layout/item_location" />
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/latitudeContainer"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:layout_marginBottom="24dp"
-            android:hint="latitude"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/longitudeContainer"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/locationListView">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="numberDecimal"
-                android:maxLines="1"
-                android:imeOptions="actionNext"
-                android:text="@={viewModel.latitudeText}" />
-
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/longitudeContainer"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:hint="longitude"
-            app:layout_constraintBottom_toBottomOf="@id/latitudeContainer"
-            app:layout_constraintEnd_toStartOf="@id/addButton"
-            app:layout_constraintStart_toEndOf="@id/latitudeContainer"
-            app:layout_constraintTop_toTopOf="@id/latitudeContainer">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="numberDecimal"
-                android:imeOptions="actionDone"
-                android:maxLines="1"
-                android:text="@={viewModel.longitudeText}" />
-
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <Button
-            android:id="@+id/addButton"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginStart="12dp"
-            android:layout_marginEnd="12dp"
-            android:onClick="@{() -> viewModel.addLocation()}"
-            android:text="@string/add"
-            app:layout_constraintBottom_toBottomOf="@id/latitudeContainer"
+            android:gravity="end"
+            app:layout_constraintBottom_toTopOf="@id/cdView"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/longitudeContainer"
-            app:layout_constraintTop_toTopOf="@id/latitudeContainer" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:title="@{viewModel.title}"
+            app:titleTextColor="@color/white"
+            tools:title="Recording 1">
+
+        </com.google.android.material.appbar.MaterialToolbar>
+
+        <ImageView
+            android:id="@+id/cdView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="24dp"
+            android:layout_marginTop="12dp"
+            android:adjustViewBounds="true"
+            android:src="@drawable/ic_cd"
+            app:layout_constraintBottom_toTopOf="@id/progressView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/toolbarContainer"
+            tools:ignore="ContentDescription" />
+
+        <com.google.android.material.slider.Slider
+            android:id="@+id/progressView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="12dp"
+            android:value="@{viewModel.currentPosition}"
+            app:labelBehavior="gone"
+            app:layout_constraintBottom_toTopOf="@id/currentTimeView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/cdView"
+            app:thumbColor="@color/white"
+            app:trackColorActive="@color/white"
+            app:trackColorInactive="@color/purple_dark"
+            tools:value="0.5" />
+
+        <TextView
+            android:id="@+id/currentTimeView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:text="@{viewModel.position}"
+            android:textColor="@color/white"
+            app:layout_constraintBottom_toTopOf="@id/spaceView"
+            app:layout_constraintEnd_toStartOf="@id/durationView"
+            app:layout_constraintHorizontal_chainStyle="spread_inside"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/progressView"
+            tools:text="1:30" />
+
+        <TextView
+            android:id="@+id/durationView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="24dp"
+            android:text="@{viewModel.duration}"
+            android:textColor="@color/white"
+            app:layout_constraintBottom_toBottomOf="@id/currentTimeView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/currentTimeView"
+            app:layout_constraintTop_toTopOf="@id/currentTimeView"
+            tools:text="3:00" />
+
+        <Space
+            android:id="@+id/spaceView"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toTopOf="@id/dividerView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/currentTimeView"
+            app:layout_constraintVertical_weight="1" />
+
+
+        <View
+            android:id="@+id/dividerView"
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="@{viewModel.recording ? @color/recording : @color/white}"
+            app:layout_constraintBottom_toTopOf="@id/playView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/spaceView" />
+
+        <ImageView
+            android:id="@+id/playView"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginVertical="12dp"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:onClick="@{() -> viewModel.onPlayClicked()}"
+            android:src="@drawable/ic_play"
+            android:tintMode="src_atop"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/pauseView"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/dividerView"
+            app:tint="@{viewModel.recording ? @color/recording : @color/white}"
+            tools:ignore="ContentDescription" />
+
+        <ImageView
+            android:id="@+id/pauseView"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="24dp"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:onClick="@{() -> viewModel.onPauseClicked()}"
+            android:src="@drawable/ic_pause"
+            android:tintMode="src_atop"
+            app:layout_constraintBottom_toBottomOf="@id/playView"
+            app:layout_constraintEnd_toStartOf="@id/stopView"
+            app:layout_constraintStart_toEndOf="@id/playView"
+            app:layout_constraintTop_toTopOf="@id/playView"
+            app:tint="@{viewModel.recording ? @color/recording : @color/white}"
+            tools:ignore="ContentDescription" />
+
+        <ImageView
+            android:id="@+id/stopView"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="24dp"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:onClick="@{() -> viewModel.onStopClicked()}"
+            android:src="@drawable/ic_stop"
+            android:tintMode="src_atop"
+            app:layout_constraintBottom_toBottomOf="@id/playView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/pauseView"
+            app:layout_constraintTop_toTopOf="@id/playView"
+            app:tint="@{viewModel.recording ? @color/recording : @color/white}"
+            tools:ignore="ContentDescription" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

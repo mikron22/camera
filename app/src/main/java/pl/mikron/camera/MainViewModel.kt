@@ -1,20 +1,17 @@
 package pl.mikron.camera
 
-import android.content.res.Resources
-import android.location.Location
 import androidx.lifecycle.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.disposables.CompositeDisposable
-import pl.mikron.camera.location.LocationData
-import pl.mikron.camera.location.LocationSensor
+import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
+import pl.mikron.camera.media.MediaPlayerWrapper
 import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-  private val sensor: LocationSensor,
-  private val resources: Resources
+  private val player: MediaPlayerWrapper
 ) : ViewModel() {
-
   private val disposables = CompositeDisposable()
 
   override fun onCleared() {
@@ -22,63 +19,79 @@ class MainViewModel @Inject constructor(
     disposables.dispose()
   }
 
-  internal fun observeLocation() {
-    disposables
-      .add(
-        sensor
-          .observe()
-          .subscribe(
-            userLocation::postValue
-          )
-      )
-  }
+  private val _position: MutableLiveData<Int> =
+    MutableLiveData(0)
 
-  private val userLocation: MutableLiveData<LocationData> =
-    MutableLiveData(LocationData())
+  val currentPosition: LiveData<Int> =
+    _position
 
-  val locationCurrent: LiveData<String> =
-    userLocation.map { "${it.location.latitude} ${it.location.longitude}" }
-
-  val locationPrevious: LiveData<String> =
-    userLocation.map { "${it.previousLocation.latitude} ${it.previousLocation.longitude}" }
-
-  val velocity: LiveData<String> =
-    userLocation.map { resources.getString(R.string.velocity, it.location.speed) }
-
-  val direction: LiveData<String> =
-    userLocation.map { resources.getString(R.string.direction, it.location.bearing) }
-
-  val longitudeText: MutableLiveData<String> =
-    MutableLiveData(null)
-
-  val latitudeText: MutableLiveData<String> =
-    MutableLiveData(null)
-
-  private val _locations: MutableLiveData<List<Location>> =
-    MutableLiveData(emptyList())
-
-  val locations: LiveData<List<Pair<Location, Location>>> =
-    _locations.switchMap { locations ->
-      userLocation.map { current ->
-        locations.map {
-          Pair(it, current.location)
-        }
-      }
+  val position: LiveData<String> =
+    _position.map {
+      String.format("%02d:%02d", it / 60000, (it / 1000) % 60)
     }
 
-  fun addLocation() {
-    val long = longitudeText.value?.toDouble() ?: return
-    val lat = latitudeText.value?.toDouble() ?: return
+  private val _duration: MutableLiveData<Int> =
+    MutableLiveData(0)
 
-    _locations.postValue(_locations.value.orEmpty().toMutableList().apply {
-      add(
-        Location("").apply {
-          longitude = long
-          latitude = lat
-        }
-      )
-    })
-    longitudeText.postValue(null)
-    latitudeText.postValue(null)
+  val duration: LiveData<String> =
+    _duration.map {
+      String.format("%02d:%02d", it / 60000, (it / 1000) % 60)
+    }
+
+  private val _title: MutableLiveData<String> =
+    MutableLiveData("Select file or start recording")
+
+  val title: LiveData<String> =
+    _title
+
+  private var positionDisposable: Disposable? = null
+
+  internal fun observeSongData() {
+    positionDisposable?.dispose()
+
+    positionDisposable =
+      player
+        .observePosition()
+        .subscribeOn(Schedulers.computation())
+        .subscribe(_position::postValue)
+        .also { disposables.add(it) }
+
+    _title.postValue(player.getArtist())
+    _duration.postValue(player.getDuration())
   }
+
+  internal fun stopSongDataObservation() {
+    positionDisposable?.dispose()
+  }
+
+  internal fun setupForRecording() {
+    stopSongDataObservation()
+    _position.postValue(0)
+    _duration.postValue(0)
+    _title.postValue("Nagrywanie")
+  }
+
+  private val _recording: MutableLiveData<Boolean> =
+    MutableLiveData(false)
+
+  val recording: LiveData<Boolean> =
+    _recording
+
+  internal fun setRecording(recording: Boolean) =
+    _recording.postValue(recording)
+
+  private val _playbackEvent: MutableLiveData<PlaybackEvent> =
+    MutableLiveData()
+
+  val playbackEvent: LiveData<PlaybackEvent> =
+    _playbackEvent
+
+  fun onPlayClicked() =
+    _playbackEvent.postValue(PlaybackEvent.Play)
+
+  fun onPauseClicked() =
+    _playbackEvent.postValue(PlaybackEvent.Pause)
+
+  fun onStopClicked() =
+    _playbackEvent.postValue(PlaybackEvent.Stop)
 }

@@ -7,5 +7,7 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="background">#C1C1C1</color>
+    <color name="background">#543884</color>
+    <color name="purple_dark">#262254</color>
+    <color name="recording">#FF0000</color>
 </resources>
